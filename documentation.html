@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>厂区货物调度系统 - 系统文档</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/documentation.css">
+    <link href="https://cdn.bootcdn.net/ajax/libs/github-markdown-css/5.1.0/github-markdown.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>厂区货物调度系统 - 系统文档</h1>
+            <div class="nav-back">
+                <a href="/" class="btn secondary"><i class="fas fa-arrow-left"></i> 返回主页</a>
+            </div>
+        </header>
+
+        <main class="markdown-body">
+            <div id="markdown-content">
+                {{ content | safe }}
+            </div>
+        </main>
+
+        <footer>
+            <p>© 2023 厂区货物调度系统 - 版本 1.0</p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.bootcdn.net/ajax/libs/marked/4.0.0/marked.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const content = document.getElementById('markdown-content').innerHTML;
+            document.getElementById('markdown-content').innerHTML = marked.parse(content);
+        });
+    </script>
+</body>
+</html> 

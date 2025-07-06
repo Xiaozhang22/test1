@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>厂区货物调度系统</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>厂区货物调度系统</h1>
+            <nav>
+                <ul>
+                    <li><a href="#" class="active" data-view="dashboard">系统面板</a></li>
+                    <li><a href="#" data-view="config">配置管理</a></li>
+                    <li><a href="#" data-view="tasks">任务管理</a></li>
+                    <li><a href="#" data-view="visualization">可视化展示</a></li>
+                    <li><a href="/documentation" target="_blank">系统文档</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main>
+            <!-- 系统面板视图 -->
+            <section id="dashboard" class="view active">
+                <div class="dashboard-grid">
+                    <div class="card status-card">
+                        <h2>系统状态</h2>
+                        <div class="status-content">
+                            <div class="status-item">
+                                <span class="status-label">末端库:</span>
+                                <span id="terminal-warehouse-count">0</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-label">成品库:</span>
+                                <span id="product-warehouse-count">0</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-label">行车:</span>
+                                <span id="crane-count">0</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-label">框架:</span>
+                                <span id="frame-count">0</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-label">车头:</span>
+                                <span id="truck-count">0</span>
+                            </div>
+                        </div>
+                        <button id="refresh-status" class="btn primary">刷新状态</button>
+                        <button id="reset-system" class="btn danger">重置系统</button>
+                    </div>
+
+                    <div class="card resource-card">
+                        <h2>资源状态</h2>
+                        <div id="resource-status-chart" class="chart-container"></div>
+                    </div>
+
+                    <div class="card log-card">
+                        <h2>系统日志</h2>
+                        <div class="log-container">
+                            <ul id="system-logs"></ul>
+                        </div>
+                    </div>
+
+                    <div class="card task-overview-card">
+                        <h2>任务概览</h2>
+                        <div id="task-stats" class="task-stats">
+                            <div class="stat-item">
+                                <div class="stat-value" id="active-tasks">0</div>
+                                <div class="stat-label">活跃任务</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="completed-tasks">0</div>
+                                <div class="stat-label">已完成</div>
+                            </div>
+                        </div>
+                        <div id="task-chart" class="chart-container"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 配置管理视图 -->
+            <section id="config" class="view">
+                <div class="config-grid">
+                    <div class="card">
+                        <h2>产品管理</h2>
+                        <form id="product-form" class="form-group">
+                            <div class="form-row">
+                                <label for="product-id">产品ID:</label>
+                                <input type="text" id="product-id" placeholder="自动生成">
+                            </div>
+                            <div class="form-row">
+                                <label for="product-name">产品名称:</label>
+                                <input type="text" id="product-name" required>
+                            </div>
+                            <div class="form-row">
+                                <label for="product-weight">重量(吨):</label>
+                                <input type="number" id="product-weight" step="0.1" min="0" required>
+                            </div>
+                            <div class="form-row">
+                                <label for="product-volume">体积(m³):</label>
+                                <input type="number" id="product-volume" step="0.1" min="0" required>
+                            </div>
+                            <button type="submit" class="btn primary">添加产品</button>
+                        </form>
+                        <div class="table-container">
+                            <table id="product-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>名称</th>
+                                        <th>重量</th>
+                                        <th>体积</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h2>仓库管理</h2>
+                        <div class="tab-container">
+                            <div class="tabs">
+                                <button class="tab-btn active" data-tab="terminal-warehouse">末端库</button>
+                                <button class="tab-btn" data-tab="product-warehouse">成品库</button>
+                            </div>
+                            <div class="tab-content active" id="terminal-warehouse">
+                                <form id="terminal-warehouse-form" class="form-group">
+                                    <div class="form-row">
+                                        <label for="tw-id">仓库ID:</label>
+                                        <input type="text" id="tw-id" placeholder="自动生成">
+                                    </div>
+                                    <div class="form-row">
+                                        <label for="tw-name">仓库名称:</label>
+                                        <input type="text" id="tw-name" required>
+                                    </div>
+                                    <div class="form-row">
+                                        <label for="tw-position-x">X坐标:</label>
+                                        <input type="number" id="tw-position-x" required>
+                                    </div>
+                                    <div class="form-row">
+                                        <label for="tw-position-y">Y坐标:</label>
+                                        <input type="number" id="tw-position-y" required>
+                                    </div>
+                                    <div class="form-row">
+                                        <label for="tw-capacity">容量:</label>
+                                        <input type="number" id="tw-capacity" step="0.1" min="0" required>
+                                    </div>
+                                    <button type="submit" class="btn primary">添加末端库</button>
+                                </form>
+                            </div>
+                            <div class="tab-content" id="product-warehouse">
+                                <form id="product-warehouse-form" class="form-group">
+                                    <div class="form-row">
+                                        <label for="pw-id">仓库ID:</label>
+                                        <input type="text" id="pw-id" placeholder="自动生成">
+                                    </div>
+                                    <div class="form-row">
+                                        <label for="pw-name">仓库名称:</label>
+                                        <input type="text" id="pw-name" required>
+                                    </div>
+                                    <div class="form-row">
+                                        <label for="pw-position-x">X坐标:</label>
+                                        <input type="number" id="pw-position-x" required>
+                                    </div>
+                                    <div class="form-row">
+                                        <label for="pw-position-y">Y坐标:</label>
+                                        <input type="number" id="pw-position-y" required>
+                                    </div>
+                                    <div class="form-row">
+                                        <label for="pw-capacity">容量:</label>
+                                        <input type="number" id="pw-capacity" step="0.1" min="0" required>
+                                    </div>
+                                    <button type="submit" class="btn primary">添加成品库</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table id="warehouse-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>名称</th>
+                                        <th>类型</th>
+                                        <th>位置</th>
+                                        <th>容量</th>
+                                        <th>产品数量</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h2>设备管理</h2>
+                        <div class="tab-container">
+                            <div class="tabs">
+                                <button class="tab-btn active" data-tab="crane">行车</button>
+                                <button class="tab-btn" data-tab="frame">框架</button>
+                                <button class="tab-btn" data-tab="truck">车头</button>
+                            </div>
+                            <div class="tab-content active" id="crane">
+                                <form id="crane-form" class="form-group">
+                                    <div class="form-row">
+                                        <label for="crane-id">行车ID:</label>
+                                        <input type="text" id="crane-id" placeholder="自动生成">
+                                    </div>
+                                    <div class="form-row">
+                                        <label for="crane-name">行车名称:</label>
+                                        <input type="text" id="crane-name" required>
+                                    </div>
+                                    <div class="form-row">
+                                        <label for="crane-position-x">X坐标:</label>
+                                        <input type="number" id="crane-position-x" required>
+                                    </div>
+                                    <div class="form-row">
+                                        <label for="crane-position-y">Y坐标:</label>
+                                        <input type="number" id="crane-position-y" required>
+                                    </div>
+                                    <div class="form-row">
+                                        <label for="crane-warehouse">所属仓库:</label>
+                                        <select id="crane-warehouse" required></select>
+                                    </div>
+                                    <button type="submit" class="btn primary">添加行车</button>
+                                </form>
+                            </div>
+                            <div class="tab-content" id="frame">
+                                <form id="frame-form" class="form-group">
+                                    <div class="form-row">
+                                        <label for="frame-id">框架ID:</label>
+                                        <input type="text" id="frame-id" placeholder="自动生成">
+                                    </div>
+                                    <div class="form-row">
+                                        <label for="frame-name">框架名称:</label>
+                                        <input type="text" id="frame-name" required>
+                                    </div>
+                                    <div class="form-row">
+                                        <label for="frame-position-x">X坐标:</label>
+                                        <input type="number" id="frame-position-x" required>
+                                    </div>
+                                    <div class="form-row">
+                                        <label for="frame-position-y">Y坐标:</label>
+                                        <input type="number" id="frame-position-y" required>
+                                    </div>
+                                    <button type="submit" class="btn primary">添加框架</button>
+                                </form>
+                            </div>
+                            <div class="tab-content" id="truck">
+                                <form id="truck-form" class="form-group">
+                                    <div class="form-row">
+                                        <label for="truck-id">车头ID:</label>
+                                        <input type="text" id="truck-id" placeholder="自动生成">
+                                    </div>
+                                    <div class="form-row">
+                                        <label for="truck-name">车头名称:</label>
+                                        <input type="text" id="truck-name" required>
+                                    </div>
+                                    <div class="form-row">
+                                        <label for="truck-position-x">X坐标:</label>
+                                        <input type="number" id="truck-position-x" required>
+                                    </div>
+                                    <div class="form-row">
+                                        <label for="truck-position-y">Y坐标:</label>
+                                        <input type="number" id="truck-position-y" required>
+                                    </div>
+                                    <button type="submit" class="btn primary">添加车头</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table id="equipment-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>名称</th>
+                                        <th>类型</th>
+                                        <th>位置</th>
+                                        <th>状态</th>
+                                        <th>附加信息</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 任务管理视图 -->
+            <section id="tasks" class="view">
+                <div class="tasks-grid">
+                    <div class="card">
+                        <h2>船运计划管理</h2>
+                        <form id="ship-plan-form" class="form-group">
+                            <div class="form-row">
+                                <label for="ship-plan-id">计划ID:</label>
+                                <input type="text" id="ship-plan-id" placeholder="自动生成">
+                            </div>
+                            <div class="form-row">
+                                <label for="ship-plan-deadline">截止时间:</label>
+                                <input type="datetime-local" id="ship-plan-deadline" required>
+                            </div>
+                            <div class="form-row">
+                                <label for="ship-plan-priority">优先级:</label>
+                                <input type="number" id="ship-plan-priority" min="1" max="10" value="1" required>
+                            </div>
+                            <div class="form-row">
+                                <h4>产品清单</h4>
+                                <div id="ship-plan-products"></div>
+                                <button type="button" id="add-plan-product" class="btn secondary">添加产品</button>
+                            </div>
+                            <button type="submit" class="btn primary">创建船运计划</button>
+                        </form>
+
+                        <div class="table-container">
+                            <h3>船运计划列表</h3>
+                            <table id="ship-plan-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>产品清单</th>
+                                        <th>截止时间</th>
+                                        <th>优先级</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h2>内转任务管理</h2>
+                        <form id="internal-transfer-form" class="form-group">
+                            <div class="form-row">
+                                <label for="source-warehouse">来源仓库:</label>
+                                <select id="source-warehouse" required></select>
+                            </div>
+                            <div class="form-row">
+                                <label for="target-warehouse">目标仓库:</label>
+                                <select id="target-warehouse" required></select>
+                            </div>
+                            <div class="form-row">
+                                <h4>产品清单</h4>
+                                <div id="transfer-products"></div>
+                                <button type="button" id="add-transfer-product" class="btn secondary">添加产品</button>
+                            </div>
+                            <button type="submit" class="btn primary">创建内转任务</button>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <h2>仓库库存管理</h2>
+                        <form id="warehouse-stock-form" class="form-group">
+                            <div class="form-row">
+                                <label for="stock-warehouse">选择仓库:</label>
+                                <select id="stock-warehouse" required></select>
+                            </div>
+                            <div class="form-row">
+                                <label for="stock-product">选择产品:</label>
+                                <select id="stock-product" required></select>
+                            </div>
+                            <div class="form-row">
+                                <label for="stock-quantity">数量调整:</label>
+                                <input type="number" id="stock-quantity" required>
+                                <span class="hint">正数为增加，负数为减少</span>
+                            </div>
+                            <button type="submit" class="btn primary">更新库存</button>
+                        </form>
+                        <div class="table-container">
+                            <h3>仓库库存</h3>
+                            <select id="warehouse-inventory-selector"></select>
+                            <table id="warehouse-inventory-table">
+                                <thead>
+                                    <tr>
+                                        <th>产品ID</th>
+                                        <th>产品名称</th>
+                                        <th>数量</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h2>任务列表</h2>
+                        <div class="table-container">
+                            <table id="tasks-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>类型</th>
+                                        <th>状态</th>
+                                        <th>子任务数量</th>
+                                        <th>开始时间</th>
+                                        <th>结束时间</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 可视化展示视图 -->
+            <section id="visualization" class="view">
+                <div class="visualization-container">
+                    <div class="card full-width">
+                        <h2>厂区平面布局</h2>
+                        <div id="layout-visualization" class="visualization"></div>
+                    </div>
+                    
+                    <div class="card full-width">
+                        <h2>任务执行流程</h2>
+                        <div class="form-row">
+                            <label for="visualization-task-select">选择任务:</label>
+                            <select id="visualization-task-select"></select>
+                            <button id="start-visualization" class="btn primary">开始模拟</button>
+                            <button id="reset-visualization" class="btn secondary">重置</button>
+                        </div>
+                        <div id="task-visualization" class="visualization"></div>
+                    </div>
+                    
+                    <div class="card full-width">
+                        <h2>任务流程图</h2>
+                        <div id="task-flow-chart" class="visualization"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>© 2023 厂区货物调度系统 - 版本 1.0</p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.bootcdn.net/ajax/libs/d3/7.0.0/d3.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <script src="/js/main.js"></script>
+    <script src="/js/dashboard.js"></script>
+    <script src="/js/config.js"></script>
+    <script src="/js/tasks.js"></script>
+    <script src="/js/visualization.js"></script>
+</body>
+</html> 
