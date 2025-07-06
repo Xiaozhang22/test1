@@ -1,0 +1,95 @@
+/* 
+ * 厂区货物调度系统 - 文档样式表
+ */
+
+.markdown-body {
+    padding: 1rem;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 2rem;
+}
+
+.nav-back {
+    margin: 0.5rem 1rem;
+}
+
+/* 覆盖一些markdown样式 */
+.markdown-body h1,
+.markdown-body h2 {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+    padding-bottom: 0.3em;
+    margin-top: 1.5em;
+}
+
+.markdown-body h3,
+.markdown-body h4 {
+    color: var(--dark-bg);
+}
+
+.markdown-body code {
+    background-color: var(--light-bg);
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+}
+
+.markdown-body pre {
+    background-color: var(--dark-bg);
+    border-radius: 6px;
+    padding: 16px;
+    overflow: auto;
+    font-size: 85%;
+    line-height: 1.45;
+}
+
+.markdown-body pre code {
+    background-color: transparent;
+    padding: 0;
+}
+
+/* 表格样式 */
+.markdown-body table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.markdown-body table th,
+.markdown-body table td {
+    border: 1px solid var(--border-color);
+    padding: 0.5rem;
+}
+
+.markdown-body table th {
+    background-color: var(--light-bg);
+    font-weight: 600;
+}
+
+.markdown-body table tr:nth-child(even) {
+    background-color: rgba(0, 0, 0, 0.025);
+}
+
+/* 代码块 */
+.markdown-body .language-python,
+.markdown-body .language-json {
+    color: var(--text-light);
+}
+
+/* 引用块 */
+.markdown-body blockquote {
+    border-left: 4px solid var(--primary-color);
+    color: #666;
+    padding-left: 1em;
+    margin-left: 0;
+}
+
+/* 链接样式 */
+.markdown-body a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.markdown-body a:hover {
+    text-decoration: underline;
+} 
